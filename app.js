@@ -11,7 +11,7 @@ const { username, password } = require('./secrets');
 const dbURI = `mongodb+srv://${username}:${password}@nodetuts.4lhc2.mongodb.net/node-tuts`;
 mongoose
   .connect(dbURI)
-  .then((result) => app.listen(3000))
+  .then((result) => app.listen(3000)) // Port to listen for
   .catch((err) => console.log(err));
 
 // Register View Engine
@@ -21,56 +21,32 @@ app.set('view engine', 'ejs');
 app.use(express.static('public')); // Refers to folder name: public
 app.use(morgan('dev'));
 
-// Mongoose and mongo sandbox routes
-// SAVE
-app.get('/add-blog', (req, res) => {
-  const blog = new Blog({
-    title: 'new blog 2',
-    snippet: 'about my new blog',
-    body: 'more about my new blog',
-  });
-
-  blog
-    .save()
-    .then((result) => res.send(result))
-    .catch((err) => console.log(err));
-});
-
-// FIND
-app.get('/all-blogs', (req, res) => {
-  Blog.find()
-    .then((result) => {
-      res.send(result);
-    })
-    .catch((err) => console.log(err));
-});
-// FIND BY ID
-app.get('/single-blog', (req, res) => {
-  Blog.findById('67c8a143f74c3e402c40f86c') // ID grabbed from mongoDB of a blog
-    .then((result) => {
-      res.send(result);
-    })
-    .catch((err) => console.log(err));
-});
-
+// BASIC ROUTES
 app.get('/', (req, res) => {
-  const blogs = [
-    { title: 'Yoshi finds eggs', snippet: 'laisdbnfliusdfvbwesfbviasdb' },
-    { title: 'Mario finds stars', snippet: 'dfiaklweucnqeebuoywerfnvweruivb' },
-    { title: 'How to defeat bowser', snippet: 'iasklcoimeruivbneiwuvbyuwoeb' },
-  ];
-  res.render('index', { title: 'Home', blogs });
+  res.redirect('./blogs');
 });
 
 app.get('/about', (req, res) => {
   res.render('about', { title: 'About' });
 });
 
+// BLOG ROUTES
+app.get('/blogs', (req, res) => {
+  Blog.find()
+    .sort({ createdAt: -1 }) // Newest to oldest sorting
+    .then((result) => {
+      res.render('index', { title: 'All Blogs', blogs: result }); // index refers to index.ejs
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 app.get('/blogs/create', (req, res) => {
   res.render('create', { title: 'Create a new Blog' });
 });
 
-// 404 Page
+// 404 PAGE
 app.use((req, res) => {
   res.status(404).render('404', { title: '404' });
 });
