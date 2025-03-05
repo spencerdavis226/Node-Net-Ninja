@@ -1,10 +1,8 @@
 const express = require('express');
+const app = express();
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const Blog = require('./models/blog');
-
-// Express App
-const app = express();
 
 // Connect to mongoDB
 const { username, password } = require('./secrets');
@@ -19,6 +17,7 @@ app.set('view engine', 'ejs');
 
 // MIDDLEWARE & STATIC FILES (CSS/images)
 app.use(express.static('public')); // Refers to folder name: public
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // BASIC ROUTES
@@ -40,6 +39,17 @@ app.get('/blogs', (req, res) => {
     .catch((err) => {
       console.log(err);
     });
+});
+
+// Add a new blog on browser
+app.post('/blogs', (req, res) => {
+  const blog = new Blog(req.body);
+  blog
+    .save()
+    .then((result) => {
+      res.redirect('/blogs');
+    })
+    .catch((err) => console.log(err));
 });
 
 app.get('/blogs/create', (req, res) => {
