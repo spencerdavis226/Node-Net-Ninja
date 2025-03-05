@@ -4,7 +4,7 @@ const blog_index = (req, res) => {
   Blog.find()
     .sort({ createdAt: -1 }) // Newest to oldest sorting
     .then((result) => {
-      res.render('index', { title: 'All Blogs', blogs: result }); // index refers to index.ejs
+      res.render('blogs/index', { title: 'All Blogs', blogs: result }); // index refers to index.ejs
     })
     .catch((err) => {
       console.log(err);
@@ -15,13 +15,13 @@ const blog_details = (req, res) => {
   const id = req.params.id;
   Blog.findById(id)
     .then((result) => {
-      res.render('details', { blog: result, title: 'Blog Details' });
+      res.render('blogs/details', { blog: result, title: 'Blog Details' });
     })
     .catch((err) => console.log(err));
 };
 
 const blog_create_get = (req, res) => {
-  res.render('create', { title: 'Create a new Blog' }); // render create.ejs
+  res.render('blogs/create', { title: 'Create a new Blog' }); // render create.ejs
 };
 
 const blog_create_post = (req, res) => {
