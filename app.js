@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const Blog = require('./models/blog');
+const blogRoutes = require('./routes/blogRoutes');
 
 // Connect to mongoDB
 const { username, password } = require('./secrets');
@@ -30,49 +30,7 @@ app.get('/about', (req, res) => {
 });
 
 // BLOG ROUTES
-app.get('/blogs', (req, res) => {
-  Blog.find()
-    .sort({ createdAt: -1 }) // Newest to oldest sorting
-    .then((result) => {
-      res.render('index', { title: 'All Blogs', blogs: result }); // index refers to index.ejs
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
-// Add a new blog on browser
-app.post('/blogs', (req, res) => {
-  const blog = new Blog(req.body);
-  blog
-    .save()
-    .then((result) => {
-      res.redirect('/blogs');
-    })
-    .catch((err) => console.log(err));
-});
-
-app.get('/blogs/:id', (req, res) => {
-  const id = req.params.id;
-  Blog.findById(id)
-    .then((result) => {
-      res.render('details', { blog: result, title: 'Blog Details' });
-    })
-    .catch((err) => console.log(err));
-});
-
-app.delete('/blogs/:id', (req, res) => {
-  const id = req.params.id;
-  Blog.findByIdAndDelete(id)
-    .then((result) => {
-      res.json({ redirect: '/blogs' });
-    })
-    .catch((err) => console.log(err));
-});
-
-app.get('/blogs/create', (req, res) => {
-  res.render('create', { title: 'Create a new Blog' });
-});
+app.use('/blogs', blogRoutes); // imported from blogRoutes.js
 
 // 404 PAGE
 app.use((req, res) => {
